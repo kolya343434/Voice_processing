@@ -1,40 +1,5 @@
 # Лабораторная работа №10 — Обработка голоса
 
-Поддерживаются **вариант 1** и **вариант 2** (выбираются параметром `--variant`).
-
-## Вариант 2 — Синтезатор речи (то, про что “63 файла”)
-### Что требуется
-1) Записать **63** одноканальных `*.wav` (фонемы/аллофоны русского языка: **23 гласных + 40 согласных**).  
-2) Синтезировать фразу по фонетической транскрипции:
-   - простая **конкатенация**
-   - **crossfade** (перекрёстное затухание)
-3) Синтезировать фразу: **«Хорошо живёт на свете Винни-Пух»**  
-4) Построить **спектрограмму** (STFT, окно Ханна), частоты — **логарифмическая шкала**, сохранить в файл.
-
-### Где 63 файла
-- Инвентарь (ровно 63 имени) задан в `config/variant2.json`.
-- Файлы лежат в `samples/v2_inventory/` как `samples/v2_inventory/<phone>.wav`.
-
-Важно: я **не могу записать твой голос** вместо тебя, поэтому в репозитории лежат **демо-заглушки** (синтетические wav), чтобы было видно, что синтез/спектрограммы реально работают. Для сдачи просто **замени** эти 63 wav на свои записи с теми же именами.
-
-### Запуск варианта 2
-Установка:
-`pip install -r requirements.txt`
-
-Проверка, что все 63 файла на месте:
-`python src/main.py --variant 2 --check-inventory`
-
-Демо (сгенерирует 63 заглушки, соберёт фразу, сделает спектрограммы):
-`python src/main.py --variant 2 --demo --mode both`
-
-Результаты:
-- `assets/v2_synth_concat.wav`, `assets/v2_synth_crossfade.wav`
-- `assets/v2_spectrogram_concat.png`, `assets/v2_spectrogram_crossfade.png`
-
-| Concat | Crossfade |
-|---|---|
-| ![](assets/v2_spectrogram_concat.png) | ![](assets/v2_spectrogram_crossfade.png) |
-
 ## Вариант 1 — голосовой диапазон, тембр, форманты
 
 ## Что требуется (по методичке)
@@ -59,11 +24,11 @@
 
 ### Демо (без микрофона)
 Генерирует синтетические `samples/A.wav`, `samples/I.wav`, `samples/other.wav` и выполняет анализ:
-`python src/main.py --variant 1 --demo`
+`python src/main.py --demo`
 
 ### Ваши записи
 Положить файлы в `samples/` (или передать путями):
-`python src/main.py --variant 1 --A samples/A.wav --I samples/I.wav --other samples/other.wav`
+`python src/main.py --A samples/A.wav --I samples/I.wav --other samples/other.wav`
 
 Если у вас mp3/стерео — конвертировать в моно WAV (пример ffmpeg):
 `ffmpeg -i input.mp3 -ac 1 -ar 22050 samples/A.wav`
