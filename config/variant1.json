@@ -1,0 +1,35 @@
+{
+  "lab": 10,
+  "variant": 1,
+  "sample_rate": 22050,
+  "spectrogram": {
+    "n_fft": 4096,
+    "hop_length": 256,
+    "window": "hann"
+  },
+  "pitch": {
+    "frame_sec": 0.04,
+    "hop_sec": 0.01,
+    "fmin_hz": 70,
+    "fmax_hz": 800,
+    "voiced_threshold": 3.0
+  },
+  "harmonics": {
+    "max_harmonic_hz": 8000,
+    "relative_threshold": 0.12
+  },
+  "formants": {
+    "dt_sec": 0.1,
+    "df_hz": 50,
+    "min_hz": 150,
+    "max_hz": 4000,
+    "smooth_hz": 200,
+    "cepstral_lifter_ms": 3.5,
+    "top_n": 3
+  },
+  "inputs": {
+    "A_wav": "samples/A.wav",
+    "I_wav": "samples/I.wav",
+    "other_wav": "samples/other.wav"
+  }
+}

@@ -4,90 +4,119 @@ import argparse
 import json
 from pathlib import Path
 
-from audio_io import save_wav
-from demo import generate_demo_samples
+from audio_io import load_audio_mono
 from plotting import save_spectrogram
-from synth import SynthConfig, load_phone_segments, normalize_audio, synth_concat, synth_crossfade
+from voice_analysis import (
+    FormantsConfig,
+    HarmonicsConfig,
+    PitchConfig,
+    estimate_pitch_cepstrum,
+    formants_over_time,
+    most_timbre_colored_f0,
+)
+from voice_demo import generate_demo_variant1
+
+
+def _read_cfg(repo_root: Path) -> dict:
+    cfg_path = repo_root / "config" / "variant1.json"
+    return json.loads(cfg_path.read_text(encoding="utf-8"))
 
 
 def main() -> int:
     repo_root = Path(__file__).resolve().parents[1]
-    cfg_path = repo_root / "config" / "variant2.json"
-    cfg = json.loads(cfg_path.read_text(encoding="utf-8"))
+    cfg = _read_cfg(repo_root)
+    if int(cfg.get("variant", 1)) != 1:
+        raise SystemExit("This repo is prepared for lab 10, variant 1.")
 
-    parser = argparse.ArgumentParser(description="Lab 10 (variant 2): Speech synthesizer from phoneme samples.")
-    parser.add_argument("--samples-dir", type=str, default=str(repo_root / "samples"), help="Directory with <phone>.wav files.")
-    parser.add_argument("--demo", action="store_true", help="Generate synthetic demo samples and synthesize the phrase.")
-    parser.add_argument("--mode", type=str, default="both", choices=["concat", "crossfade", "both"], help="Synthesis mode.")
-    parser.add_argument("--crossfade-ms", type=int, default=int(cfg.get("crossfade_ms", 20)), help="Crossfade duration in ms.")
-    parser.add_argument("--json-out", type=str, default=None, help="Write report JSON to a file.")
+    parser = argparse.ArgumentParser(description="Lab 10 (variant 1): voice range, timbre, formants.")
+    parser.add_argument("--A", dest="a_path", type=str, default=None, help="Path to vowel A wav.")
+    parser.add_argument("--I", dest="i_path", type=str, default=None, help="Path to vowel I wav.")
+    parser.add_argument("--other", dest="o_path", type=str, default=None, help="Path to bark/meow/etc wav.")
+    parser.add_argument("--demo", action="store_true", help="Generate synthetic demo wavs and run analysis.")
+    parser.add_argument("--full", action="store_true", help="Include full arrays in JSON (otherwise summary only).")
+    parser.add_argument("--json-out", type=str, default=None, help="Write report JSON to file.")
     args = parser.parse_args()
 
-    if int(cfg.get("variant", 2)) != 2:
-        raise SystemExit("This repo is prepared for lab 10, variant 2.")
+    sr = int(cfg["sample_rate"])
+    spec_cfg = cfg["spectrogram"]
+    pitch_cfg = PitchConfig(**cfg["pitch"])
+    harm_cfg = HarmonicsConfig(**cfg["harmonics"])
+    form_cfg = FormantsConfig(**cfg["formants"])
 
-    sample_rate = int(cfg.get("sample_rate", 22050))
-    phones = list(cfg["phrase"]["phones"])
-    stft_cfg = cfg["stft"]
-
-    synth_cfg = SynthConfig(sample_rate=sample_rate, crossfade_ms=int(args.crossfade_ms))
-    crossfade_samples = int(round(sample_rate * (synth_cfg.crossfade_ms / 1000.0)))
+    samples_dir = repo_root / "samples"
+    assets_dir = repo_root / "assets"
 
     if args.demo:
-        generate_demo_samples(args.samples_dir, phones, sr=sample_rate)
+        generate_demo_variant1(samples_dir, sr=sr)
 
-    segments = load_phone_segments(phones, args.samples_dir, synth_cfg)
-
-    outputs_dir = repo_root / "outputs"
-    assets_dir = repo_root / "assets"
+    a_path = Path(args.a_path) if args.a_path else repo_root / cfg["inputs"]["A_wav"]
+    i_path = Path(args.i_path) if args.i_path else repo_root / cfg["inputs"]["I_wav"]
+    o_path = Path(args.o_path) if args.o_path else repo_root / cfg["inputs"]["other_wav"]
 
     report: dict[str, object] = {
         "lab": 10,
-        "variant": 2,
-        "phrase_text": str(cfg["phrase"]["text"]),
-        "phones": phones,
-        "sample_rate": sample_rate,
-        "crossfade_ms": synth_cfg.crossfade_ms,
-        "outputs": {},
+        "variant": 1,
+        "sample_rate": sr,
+        "inputs": {"A": str(a_path), "I": str(i_path), "other": str(o_path)},
+        "spectrogram_png": {
+            "A": str(assets_dir / "spectrogram_A.png"),
+            "I": str(assets_dir / "spectrogram_I.png"),
+            "other": str(assets_dir / "spectrogram_other.png"),
+        },
     }
 
-    if args.mode in ("concat", "both"):
-        y = normalize_audio(synth_concat(segments))
-        out_wav = outputs_dir / "synth_concat.wav"
-        save_wav(out_wav, y, sample_rate)
+    def analyze_one(name: str, path: Path) -> dict[str, object]:
+        y, _ = load_audio_mono(path, target_sr=sr)
         save_spectrogram(
-            assets_dir / "spectrogram_concat.png",
+            assets_dir / f"spectrogram_{name}.png",
             y,
-            sample_rate,
-            n_fft=int(stft_cfg["n_fft"]),
-            hop_length=int(stft_cfg["hop_length"]),
-            title="Spectrogram (concat, Hann, log-freq)",
+            sr,
+            n_fft=int(spec_cfg["n_fft"]),
+            hop_length=int(spec_cfg["hop_length"]),
+            title=f"Spectrogram ({name}, Hann, log-freq)",
             log_freq=True,
         )
-        report["outputs"] = {**report["outputs"], "synth_concat_wav": str(out_wav), "spectrogram_concat_png": str(assets_dir / "spectrogram_concat.png")}
+        pitch = estimate_pitch_cepstrum(y, sr, pitch_cfg, n_fft=int(spec_cfg["n_fft"]))
+        best = most_timbre_colored_f0(y, sr, pitch, harm_cfg)
+        form = formants_over_time(y, sr, form_cfg, n_fft=int(spec_cfg["n_fft"]))
 
-    if args.mode in ("crossfade", "both"):
-        y = normalize_audio(synth_crossfade(segments, crossfade_samples=crossfade_samples))
-        out_wav = outputs_dir / "synth_crossfade.wav"
-        save_wav(out_wav, y, sample_rate)
-        save_spectrogram(
-            assets_dir / "spectrogram_crossfade.png",
-            y,
-            sample_rate,
-            n_fft=int(stft_cfg["n_fft"]),
-            hop_length=int(stft_cfg["hop_length"]),
-            title="Spectrogram (crossfade, Hann, log-freq)",
-            log_freq=True,
-        )
-        report["outputs"] = {**report["outputs"], "synth_crossfade_wav": str(out_wav), "spectrogram_crossfade_png": str(assets_dir / "spectrogram_crossfade.png")}
+        # Summaries for README-friendly report
+        form_list = form.get("formants_hz", [])
+        flat = [f for row in form_list for f in row]
+        form_mean = float(sum(flat) / len(flat)) if flat else None
 
-    text = json.dumps(report, ensure_ascii=False, indent=2)
+        out: dict[str, object] = {
+            "duration_sec": float(len(y) / sr),
+            "pitch_summary": {
+                "f0_min_hz": pitch["f0_min_hz"],
+                "f0_max_hz": pitch["f0_max_hz"],
+                "voiced_ratio": pitch["voiced_ratio"],
+                "method": pitch.get("method", "unknown"),
+            },
+            "most_timbre_colored_f0": best,
+            "formants_summary": {
+                "dt_sec": form_cfg.dt_sec,
+                "df_hz": form_cfg.df_hz,
+                "mean_hz_over_time": form_mean,
+                "examples_first3_windows": form_list[:3],
+            },
+        }
+
+        if args.full:
+            out["pitch_full"] = pitch
+            out["formants_full"] = form
+        return out
+
+    report["A"] = analyze_one("A", a_path)
+    report["I"] = analyze_one("I", i_path)
+    report["other"] = analyze_one("other", o_path)
+
+    text = json.dumps(report, ensure_ascii=False, indent=2, default=lambda o: o.tolist() if hasattr(o, "tolist") else str(o))
     print(text)
     if args.json_out:
         Path(args.json_out).write_text(text, encoding="utf-8")
     if args.demo:
         (assets_dir / "demo_report.json").write_text(text, encoding="utf-8")
-
     return 0
 
 

@@ -1,27 +1,123 @@
 {
   "lab": 10,
-  "variant": 2,
-  "phrase_text": "Хорошо живёт на свете Винни-Пух",
-  "phones": [
-    "хо",
-    "ро",
-    "шо",
-    "жы",
-    "вё",
-    "т",
-    "на",
-    "све",
-    "те",
-    "ви",
-    "нни",
-    "пух"
-  ],
+  "variant": 1,
   "sample_rate": 22050,
-  "crossfade_ms": 20,
-  "outputs": {
-    "synth_concat_wav": "D:\\Feature-based_classification_profile_analysis\\Voice_processing\\outputs\\synth_concat.wav",
-    "spectrogram_concat_png": "D:\\Feature-based_classification_profile_analysis\\Voice_processing\\assets\\spectrogram_concat.png",
-    "synth_crossfade_wav": "D:\\Feature-based_classification_profile_analysis\\Voice_processing\\outputs\\synth_crossfade.wav",
-    "spectrogram_crossfade_png": "D:\\Feature-based_classification_profile_analysis\\Voice_processing\\assets\\spectrogram_crossfade.png"
+  "inputs": {
+    "A": "D:\\Feature-based_classification_profile_analysis\\Voice_processing\\samples\\A.wav",
+    "I": "D:\\Feature-based_classification_profile_analysis\\Voice_processing\\samples\\I.wav",
+    "other": "D:\\Feature-based_classification_profile_analysis\\Voice_processing\\samples\\other.wav"
+  },
+  "spectrogram_png": {
+    "A": "D:\\Feature-based_classification_profile_analysis\\Voice_processing\\assets\\spectrogram_A.png",
+    "I": "D:\\Feature-based_classification_profile_analysis\\Voice_processing\\assets\\spectrogram_I.png",
+    "other": "D:\\Feature-based_classification_profile_analysis\\Voice_processing\\assets\\spectrogram_other.png"
+  },
+  "A": {
+    "duration_sec": 6.0,
+    "pitch_summary": {
+      "f0_min_hz": 104.50236966824644,
+      "f0_max_hz": 580.2631578947369,
+      "voiced_ratio": 0.939799331103679,
+      "method": "cepstrum"
+    },
+    "most_timbre_colored_f0": {
+      "harmonics": 4,
+      "f0_hz": 104.50236966824644,
+      "time_sec": 0.1796371882086168
+    },
+    "formants_summary": {
+      "dt_sec": 0.1,
+      "df_hz": 50,
+      "mean_hz_over_time": 1303.2454151218221,
+      "examples_first3_windows": [
+        [
+          301.46484375,
+          1065.8935546875,
+          2449.40185546875
+        ],
+        [
+          301.46484375,
+          2433.251953125,
+          2745.4833984375
+        ],
+        [
+          419.8974609375,
+          2347.119140625,
+          2583.984375
+        ]
+      ]
+    }
+  },
+  "I": {
+    "duration_sec": 6.0,
+    "pitch_summary": {
+      "f0_min_hz": 108.08823529411765,
+      "f0_max_hz": 630.0,
+      "voiced_ratio": 0.9765886287625418,
+      "method": "cepstrum"
+    },
+    "most_timbre_colored_f0": {
+      "harmonics": 27,
+      "f0_hz": 290.13157894736844,
+      "time_sec": 5.677142857142857
+    },
+    "formants_summary": {
+      "dt_sec": 0.1,
+      "df_hz": 50,
+      "mean_hz_over_time": 1280.252333818856,
+      "examples_first3_windows": [
+        [
+          403.74755859375,
+          2810.0830078125,
+          3149.23095703125
+        ],
+        [
+          263.78173828125,
+          425.28076171875,
+          2885.44921875
+        ],
+        [
+          220.71533203125,
+          468.34716796875,
+          2896.2158203125
+        ]
+      ]
+    }
+  },
+  "other": {
+    "duration_sec": 1.3999546485260772,
+    "pitch_summary": {
+      "f0_min_hz": 108.62068965517241,
+      "f0_max_hz": 787.5,
+      "voiced_ratio": 0.5109489051094891,
+      "method": "cepstrum"
+    },
+    "most_timbre_colored_f0": {
+      "harmonics": 73,
+      "f0_hz": 108.62068965517241,
+      "time_sec": 0.7882539682539682
+    },
+    "formants_summary": {
+      "dt_sec": 0.1,
+      "df_hz": 50,
+      "mean_hz_over_time": 3419.4427490234375,
+      "examples_first3_windows": [
+        [
+          3036.181640625,
+          3332.26318359375,
+          3639.111328125
+        ],
+        [
+          2955.43212890625,
+          3343.02978515625,
+          3892.12646484375
+        ],
+        [
+          3057.71484375,
+          3423.779296875,
+          3849.06005859375
+        ]
+      ]
+    }
   }
 }
