@@ -1,0 +1,27 @@
+{
+  "lab": 10,
+  "variant": 2,
+  "phrase_text": "Хорошо живёт на свете Винни-Пух",
+  "phones": [
+    "хо",
+    "ро",
+    "шо",
+    "жы",
+    "вё",
+    "т",
+    "на",
+    "све",
+    "те",
+    "ви",
+    "нни",
+    "пух"
+  ],
+  "sample_rate": 22050,
+  "crossfade_ms": 20,
+  "outputs": {
+    "synth_concat_wav": "D:\\Feature-based_classification_profile_analysis\\Voice_processing\\outputs\\synth_concat.wav",
+    "spectrogram_concat_png": "D:\\Feature-based_classification_profile_analysis\\Voice_processing\\assets\\spectrogram_concat.png",
+    "synth_crossfade_wav": "D:\\Feature-based_classification_profile_analysis\\Voice_processing\\outputs\\synth_crossfade.wav",
+    "spectrogram_crossfade_png": "D:\\Feature-based_classification_profile_analysis\\Voice_processing\\assets\\spectrogram_crossfade.png"
+  }
+}
